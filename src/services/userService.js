@@ -1,89 +1,60 @@
-import uuid from 'uuid';
+import Sequelize from 'sequelize';
 
-const users = [
-    {
-        id: uuid.v4(),
-        login: 'testlogin1autoSuggest',
-        password: 'testpassword1',
-        age: 21,
-        isDeleted: false
-    },
-    {
-        id: uuid.v4(),
-        login: 'testlogin3autoSuggest',
-        password: 'testpassword3',
-        age: 23,
-        isDeleted: false
-    },
-    {
-        id: uuid.v4(),
-        login: 'testlogin2',
-        password: 'testpassword2',
-        age: 22,
-        isDeleted: false
-    },
-    {
-        id: uuid.v4(),
-        login: 'testlogin4',
-        password: 'testpassword4',
-        age: 24,
-        isDeleted: false
-    },
-    {
-        id: uuid.v4(),
-        login: 'testlogin5autoSuggest',
-        password: 'testpassword5',
-        age: 25,
-        isDeleted: false
+class UserService {
+    constructor(userModel) {
+        this.userModel = userModel;
     }
-];
 
-const checkLoginExisted = userLogin => users.some(({ login }) => userLogin.toLowerCase() === login.toLowerCase());
-
-export const getUsers = () => users;
-
-export const getUserById = userId => getUsers().find(({ id }) => id === userId);
-
-export const getAutosuggestedUsers = ({ loginSubstring, limit }) => {
-    const autosuggestedUsers = users
-        .filter(({ login }) => login.toLowerCase().includes((loginSubstring || '').toLowerCase()))
-        .sort((userA, userB) => userA.login < userB.login ? -1 : 1);
-    return autosuggestedUsers.splice(0, limit || autosuggestedUsers.length);
-};
-
-export const deleteUserById = userId => {
-    const user = getUserById(userId);
-
-    if (user) {
-        user.isDeleted = true;
+    getAllUsers() {
+        return this.userModel.findAll()
+            .catch(console.log);
     }
-};
 
-export const addUser = userProps => {
-    const loginExisted = checkLoginExisted(userProps.login);
-    !loginExisted && users.push({
-        id: uuid.v4(),
-        isDeleted: false,
-        ...userProps
-    });
+    getUserById(id) {
+        return this.userModel.findByPk(id)
+            .catch(console.log);
+    }
 
-    return !loginExisted;
-};
+    getAutosuggestedUsers({ loginSubstring, limit }) {
+        return this.userModel.findAll({
+            where: {
+                login: {
+                    [Sequelize.Op.substring]: loginSubstring
+                }
+            },
+            order: [
+                ['login', 'ASC']
+            ],
+            limit
+        })
+            .catch(console.log);
+    }
 
-export const updateUser = ({ id, ...userProps }) => {
-    const user = getUserById(id);
+    addUser(userProps) {
+        return this.userModel.create({  ...userProps, isDeleted: false })
+            .catch(console.log);
+    }
 
-    if (user) {
-        if (user.login.toLowerCase() === userProps.login.toLowerCase() || !checkLoginExisted(userProps.login)) {
-            Object.keys(userProps).forEach(key => {
-                user[key] = userProps[key];
-            });
-
-            return { status: 200, message: 'user was successfully updated' };
+    async updateUser({ id, ...restUserProps }) {
+        const userToUpdate = await this.getUserById(id);
+        if (!userToUpdate) {
+            return null;
         }
 
-        return { status: 400, message: 'this login is already existed' };
+        return this.userModel.update({...restUserProps }, {  where: { id }, returning: true })
+            .catch(console.log);
     }
 
-    return { status: 404, message: 'not found' };
-};
+    async deleteUserById(id) {
+        const userToUpdate = await this.getUserById(id);
+
+        if (!userToUpdate) {
+            return null;
+        }
+
+        return this.userModel.update({ isDeleted: true }, {  where: { id }, returning: true })
+            .catch(console.log);
+    }
+}
+
+export default UserService;

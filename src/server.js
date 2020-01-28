@@ -1,5 +1,6 @@
 import express from 'express';
 import userRouter from './routers/userRouter';
+import connectDB from './DAL';
 
 const app = express();
 
@@ -12,3 +13,4 @@ app.use('/', (_req, res) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`start listen port ${port}`));
+connectDB();
