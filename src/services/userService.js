@@ -1,22 +1,9 @@
 import Sequelize from 'sequelize';
+import AbstractModelService from './abstractModelService';
 
-class UserService {
-    constructor(userModel) {
-        this.userModel = userModel;
-    }
-
-    getAllUsers() {
-        return this.userModel.findAll()
-            .catch(console.log);
-    }
-
-    getUserById(id) {
-        return this.userModel.findByPk(id)
-            .catch(console.log);
-    }
-
-    getAutosuggestedUsers({ loginSubstring, limit }) {
-        return this.userModel.findAll({
+class UserService extends AbstractModelService {
+    getAutosuggested({ loginSubstring, limit }) {
+        return this.model.findAll({
             where: {
                 login: {
                     [Sequelize.Op.substring]: loginSubstring
@@ -30,29 +17,25 @@ class UserService {
             .catch(console.log);
     }
 
-    addUser(userProps) {
-        return this.userModel.create({  ...userProps, isDeleted: false })
-            .catch(console.log);
-    }
+    async addItem({ login, userProps }) {
+        const user = await this.model.findOne({  where: { login } });
 
-    async updateUser({ id, ...restUserProps }) {
-        const userToUpdate = await this.getUserById(id);
-        if (!userToUpdate) {
+        if (user) {
             return null;
         }
 
-        return this.userModel.update({...restUserProps }, {  where: { id }, returning: true })
+        return super.addItem({  ...userProps, login, isDeleted: false })
             .catch(console.log);
     }
 
-    async deleteUserById(id) {
-        const userToUpdate = await this.getUserById(id);
+    async deleteItem(id) {
+        const user = await this.getItemById(id);
 
-        if (!userToUpdate) {
+        if (!user) {
             return null;
         }
 
-        return this.userModel.update({ isDeleted: true }, {  where: { id }, returning: true })
+        return this.model.update({ isDeleted: true }, {  where: { id }, returning: true })
             .catch(console.log);
     }
 }
