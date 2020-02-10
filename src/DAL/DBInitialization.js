@@ -19,8 +19,7 @@ const init = async () => {
             await model.bulkCreate(data);
             console.log(`${ tableName } table has been initialized successfully`);
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e);
     }
 };
