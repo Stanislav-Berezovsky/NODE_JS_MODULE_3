@@ -18,6 +18,11 @@ class AbstractModelService {
             .catch(console.log);
     }
 
+    async deleteItem(id) {
+        return this.model.destroy({  where: { id }, returning: true })
+            .catch(console.log);
+    }
+
     async updateItem({ id, ... restProps }) {
         const item = await this.getItemById(id);
         if (!item) {

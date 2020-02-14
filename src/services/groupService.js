@@ -12,12 +12,6 @@ class GroupService extends AbstractModelService {
         return super.addItem({  ...groupProps, name, id: uuid.v4() })
             .catch(console.log);
     }
-
-
-    async deleteItem(id) {
-        return this.model.destroy({  where: { id }, returning: true })
-            .catch(console.log);
-    }
 }
 
 export default GroupService;
