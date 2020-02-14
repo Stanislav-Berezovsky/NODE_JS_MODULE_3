@@ -3,6 +3,8 @@ import UserGroupModel from '../Models/userGroupModel';
 import GroupModel from '../Models/groupModel';
 import UserModel from '../Models/userModel';
 import UserGroupService from '../services/userGroupService';
+import UserService from '../services/userService';
+import GroupService from '../services/groupService';
 
 const router = Router();
 
@@ -17,14 +19,14 @@ router.post('/', async (req, res) => {
     const { groupId, userIds } = req.body;
     const userGroupServiceInstance = new UserGroupService({
         model: UserGroupModel,
-        userModel: UserModel,
-        groupModel: GroupModel
+        userService: new UserService(UserModel),
+        groupService: new GroupService(GroupModel)
     });
 
     const userGroupAdded  = await userGroupServiceInstance.addUsersToGroup({ groupId, userIds });
 
     if (userGroupAdded) {
-        res.json({ message: 'users was was successfully added to the group' });
+        res.json({ message: 'users were successfully added to the group' });
     } else {
         res.status(404).json({ message: 'not found' });
     }

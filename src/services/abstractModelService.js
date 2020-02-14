@@ -1,3 +1,5 @@
+import { db }  from '../DAL/DBConfiguration';
+
 class AbstractModelService {
     constructor(model) {
         this.model = model;
@@ -8,9 +10,24 @@ class AbstractModelService {
             .catch(console.log);
     }
 
-    getItemById(id) {
-        return this.model.findByPk(id)
-            .catch(console.log);
+    async getItemById({ id, transaction }) {
+        let dbTransaction;
+        if (transaction) {
+            dbTransaction = transaction;
+        } else {
+            dbTransaction = await db.transaction();
+        }
+
+        try {
+            const item = await this.model.findByPk(id, { transaction : dbTransaction });
+            if (!transaction) {
+                await dbTransaction.commit();
+            }
+            return item;
+        } catch (e) {
+            console.log(e);
+            await dbTransaction.rollback();
+        }
     }
 
     async addItem(props) {
@@ -24,7 +41,7 @@ class AbstractModelService {
     }
 
     async updateItem({ id, ... restProps }) {
-        const item = await this.getItemById(id);
+        const item = await this.getItemById({ id });
         if (!item) {
             return null;
         }

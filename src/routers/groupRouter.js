@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const groupServiceInstance = new GroupService(GroupModel);
-    const group = await groupServiceInstance.getItemById(req.params.id);
+    const group = await groupServiceInstance.getItemById({ id: req.params.id });
 
     if (group) {
         res.json(group);

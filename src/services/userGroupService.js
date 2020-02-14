@@ -1,11 +1,10 @@
-// import Sequelize from 'sequelize';
 import { db }  from '../DAL/DBConfiguration';
 
 class UserGroupService {
-    constructor({ model, userModel, groupModel }) {
+    constructor({ model, userService, groupService }) {
         this.model = model;
-        this.userModel = userModel;
-        this.groupModel = groupModel;
+        this.userService = userService;
+        this.groupService = groupService;
     }
 
     getAllItems() {
@@ -16,7 +15,7 @@ class UserGroupService {
     async addUsersToGroup({ groupId, userIds }) {
         const transaction = await db.transaction();
         try {
-            const group = await this.groupModel.findByPk(groupId, { transaction });
+            const group = await this.groupService.getItemById({ id: groupId, transaction });
 
             if (!group) {
                 await transaction.rollback();
@@ -25,7 +24,7 @@ class UserGroupService {
 
 
             for (const userId of userIds) {
-                const user = await this.userModel.findByPk(userId, { transaction });
+                const user = await this.userService.getItemById({ id: userId, transaction });
                 if (!user) {
                     await transaction.rollback();
                     return false;

@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const userServiceInstance = new UserService(UserModel);
-    const user = await userServiceInstance.getItemById(req.params.id);
+    const user = await userServiceInstance.getItemById({ id:req.params.id });
 
     if (user) {
         res.json(user);
