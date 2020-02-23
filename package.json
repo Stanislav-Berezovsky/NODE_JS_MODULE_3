@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint src/**/*.js",
-    "start-wl": "nodemon --exec babel-node src/server.js",
-    "start": "npm-run-all lint start-wl",
+    "start-server": "nodemon --exec babel-node src/server.js",
+    "start": "npm-run-all lint start-server",
+    "create-db": "nodemon --exec babel-node ./src/DAL/DBInitialization.js",
+    "db-init": "npm-run-all lint create-db",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
