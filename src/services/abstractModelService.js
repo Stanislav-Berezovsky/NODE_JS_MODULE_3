@@ -6,8 +6,7 @@ class AbstractModelService {
     }
 
     getAllItems() {
-        return this.model.findAll()
-            .catch(console.log);
+        return this.model.findAll();
     }
 
     async getItemById({ id, transaction }) {
@@ -25,19 +24,17 @@ class AbstractModelService {
             }
             return item;
         } catch (e) {
-            console.log(e);
             await dbTransaction.rollback();
+            throw e;
         }
     }
 
     async addItem(props) {
-        return this.model.create({ ...props })
-            .catch(console.log);
+        return this.model.create({ ...props });
     }
 
     async deleteItem(id) {
-        return this.model.destroy({  where: { id }, returning: true })
-            .catch(console.log);
+        return this.model.destroy({  where: { id }, returning: true });
     }
 
     async updateItem({ id, ... restProps }) {
@@ -46,8 +43,7 @@ class AbstractModelService {
             return null;
         }
 
-        return this.model.update({ ...restProps }, {  where: { id }, returning: true })
-            .catch(console.log);
+        return this.model.update({ ...restProps }, {  where: { id }, returning: true });
     }
 }
 

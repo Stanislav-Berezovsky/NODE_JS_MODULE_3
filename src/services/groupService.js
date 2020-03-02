@@ -9,8 +9,7 @@ class GroupService extends AbstractModelService {
             return null;
         }
 
-        return super.addItem({  ...groupProps, name, id: uuid.v4() })
-            .catch(console.log);
+        return super.addItem({  ...groupProps, name, id: uuid.v4() });
     }
 }
 

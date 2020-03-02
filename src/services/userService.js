@@ -13,8 +13,7 @@ class UserService extends AbstractModelService {
                 ['login', 'ASC']
             ],
             limit
-        })
-            .catch(console.log);
+        });
     }
 
     async addItem({ login, userProps }) {
@@ -24,8 +23,7 @@ class UserService extends AbstractModelService {
             return null;
         }
 
-        return super.addItem({  ...userProps, login, isDeleted: false })
-            .catch(console.log);
+        return super.addItem({  ...userProps, login, isDeleted: false });
     }
 }
 
