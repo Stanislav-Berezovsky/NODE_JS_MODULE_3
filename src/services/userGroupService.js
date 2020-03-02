@@ -8,8 +8,7 @@ class UserGroupService {
     }
 
     getAllItems() {
-        return this.model.findAll()
-            .catch(console.log);
+        return this.model.findAll();
     }
 
     async addUsersToGroup({ groupId, userIds }) {
@@ -36,8 +35,8 @@ class UserGroupService {
             await transaction.commit();
             return true;
         } catch (e) {
-            console.log(e);
             await transaction.rollback();
+            throw e;
         }
     }
 }

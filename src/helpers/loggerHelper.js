@@ -8,3 +8,6 @@ export const logger = createLogger({
     ),
     transports: [new transports.Console()]
 });
+
+export const logServiceError = ({ name, method,  params, errorMessage }) =>
+    logger.log('error', `${name}.${method} was called with following arguments are ${JSON.stringify(params)}, error message: ${errorMessage}`);

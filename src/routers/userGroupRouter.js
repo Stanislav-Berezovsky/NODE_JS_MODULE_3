@@ -6,6 +6,7 @@ import UserGroupService from '../services/userGroupService';
 import UserService from '../services/userService';
 import GroupService from '../services/groupService';
 import loggerMiddleware from './loggerMiddleware';
+import { logServiceError } from '../helpers/loggerHelper';
 
 const router = Router();
 
@@ -13,9 +14,13 @@ router.get('/',
     loggerMiddleware({ serviceName:'UserGroupService', method: 'getAllItems' }),
     async (req, res) => {
         const userGroupServiceInstance = new UserGroupService({ model: UserGroupModel });
-        const userGroup = await userGroupServiceInstance.getAllItems();
+        try {
+            const userGroup = await userGroupServiceInstance.getAllItems();
 
-        res.json(userGroup);
+            res.json(userGroup);
+        } catch (e) {
+            logServiceError({ name: 'UserGroupService', method:'getAllItems', errorMessage: e.message });
+        }
     });
 
 router.post('/',
@@ -28,12 +33,17 @@ router.post('/',
             groupService: new GroupService(GroupModel)
         });
 
-        const userGroupAdded  = await userGroupServiceInstance.addUsersToGroup({ groupId, userIds });
+        const params = { groupId, userIds };
+        try {
+            const userGroupAdded  = await userGroupServiceInstance.addUsersToGroup(params);
 
-        if (userGroupAdded) {
-            res.json({ message: 'users were successfully added to the group' });
-        } else {
-            res.status(404).json({ message: 'not found' });
+            if (userGroupAdded) {
+                res.json({ message: 'users were successfully added to the group' });
+            } else {
+                res.status(404).json({ message: 'not found' });
+            }
+        } catch (e) {
+            logServiceError({ name: 'UserGroupService', method:'getAllItems', errorMessage: e.message, params });
         }
     });
 

@@ -3,6 +3,7 @@ import validate from './validators/userValidator';
 import loggerMiddleware from './loggerMiddleware';
 import UserModel from '../Models/userModel';
 import UserService from '../services/userService';
+import { logServiceError } from '../helpers/loggerHelper';
 
 const router = Router();
 
@@ -11,29 +12,43 @@ router.get('/autoSuggest',
     async (req, res) => {
         const { loginSubstring, limit } = req.query || {};
         const userServiceInstance = new UserService(UserModel);
-        const users = await userServiceInstance.getAutosuggested({ loginSubstring, limit });
-        res.json({ users });
+        const params = { loginSubstring, limit };
+        try {
+            const users = await userServiceInstance.getAutosuggested(params);
+            res.json({ users });
+        } catch (e) {
+            logServiceError({ name: 'UserService', method:'getAutosuggested', errorMessage: e.message, params });
+        }
     });
 
 router.get('/',
     loggerMiddleware({ serviceName:'UserService', method: 'getAllItems' }),
     async (req, res) => {
         const userServiceInstance = new UserService(UserModel);
-        const users = await userServiceInstance.getAllItems();
 
-        res.json(users);
+        try {
+            const users = await userServiceInstance.getAllItems();
+            res.json(users);
+        } catch (e) {
+            logServiceError({ name: 'UserService', method:'getAllItems', errorMessage: e.message });
+        }
     });
 
 router.get('/:id',
     loggerMiddleware({ serviceName:'UserService', method: 'getItemById' }),
     async (req, res) => {
+        const params = { id:req.params.id };
         const userServiceInstance = new UserService(UserModel);
-        const user = await userServiceInstance.getItemById({ id:req.params.id });
+        try {
+            const user = await userServiceInstance.getItemById(params);
 
-        if (user) {
-            res.json(user);
-        } else {
-            res.status(404).json({ message: 'user not found' });
+            if (user) {
+                res.json(user);
+            } else {
+                res.status(404).json({ message: 'user not found' });
+            }
+        } catch (e) {
+            logServiceError({ name: 'UserService', method:'getItemById', errorMessage: e.message, params });
         }
     });
 
@@ -42,12 +57,18 @@ router.post('/',
     loggerMiddleware({ serviceName:'UserService', method: 'addItem' }),
     async (req, res) => {
         const { login, password, age } = req.body;
+        const params = { login, password, age };
         const userServiceInstance = new UserService(UserModel);
-        const user = await userServiceInstance.addItem({ login, password, age });
-        if (user) {
-            res.json({ message: 'user was successfully added' });
-        } else {
-            res.status(400).json({ message: 'this login is already existed' });
+
+        try {
+            const user = await userServiceInstance.addItem(params);
+            if (user) {
+                res.json({ message: 'user was successfully added' });
+            } else {
+                res.status(400).json({ message: 'this login is already existed' });
+            }
+        } catch (e) {
+            logServiceError({ name: 'UserService', method:'addItem', errorMessage: e.message, params });
         }
     });
 
@@ -57,12 +78,18 @@ router.put('/:id',
     async (req, res) => {
         const id = req.params.id;
         const { login, password, age } = req.body;
+        const params = { id, login, password, age };
         const userServiceInstance = new UserService(UserModel);
-        const user = await userServiceInstance.updateItem({ id, login, password, age });
-        if (user) {
-            res.json({ message: 'user was successfully updated' });
-        } else {
-            res.status(404).json({ message: 'not found' });
+
+        try {
+            const user = await userServiceInstance.updateItem(params);
+            if (user) {
+                res.json({ message: 'user was successfully updated' });
+            } else {
+                res.status(404).json({ message: 'not found' });
+            }
+        } catch (e) {
+            logServiceError({ name: 'UserService', method:'updateItem', errorMessage: e.message, params });
         }
     });
 
@@ -71,8 +98,13 @@ router.delete('/:id',
     async (req, res) => {
         const id = req.params.id;
         const userServiceInstance = new UserService(UserModel);
-        await userServiceInstance.deleteItem(id);
-        res.json({ message: 'user was successfully deleted' });
+
+        try {
+            await userServiceInstance.deleteItem(id);
+            res.json({ message: 'user was successfully deleted' });
+        } catch (e) {
+            logServiceError({ name: 'UserService', method:'deleteItem', errorMessage: e.message, params: { id } });
+        }
     });
 
 export default router;
