@@ -1,13 +1,16 @@
 import { Router } from 'express';
-import validate from './validators/userValidator';
+import validate from './validators/validator';
+import { userSchema } from './validators/userSchema';
 import loggerMiddleware from './loggerMiddleware';
 import UserModel from '../Models/userModel';
 import UserService from '../services/userService';
 import { logServiceError } from '../helpers/loggerHelper';
+import authentication from './authenticationMiddleware';
 
 const router = Router();
 
 router.get('/autoSuggest',
+    authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'getAutosuggested' }),
     async (req, res) => {
         const { loginSubstring, limit } = req.query || {};
@@ -22,6 +25,7 @@ router.get('/autoSuggest',
     });
 
 router.get('/',
+    authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'getAllItems' }),
     async (req, res) => {
         const userServiceInstance = new UserService(UserModel);
@@ -35,6 +39,7 @@ router.get('/',
     });
 
 router.get('/:id',
+    authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'getItemById' }),
     async (req, res) => {
         const params = { id:req.params.id };
@@ -53,7 +58,8 @@ router.get('/:id',
     });
 
 router.post('/',
-    validate,
+    authentication,
+    validate(userSchema),
     loggerMiddleware({ serviceName:'UserService', method: 'addItem' }),
     async (req, res) => {
         const { login, password, age } = req.body;
@@ -73,7 +79,8 @@ router.post('/',
     });
 
 router.put('/:id',
-    validate,
+    authentication,
+    validate(userSchema),
     loggerMiddleware({ serviceName:'UserService', method: 'updateItem' }),
     async (req, res) => {
         const id = req.params.id;
@@ -94,6 +101,7 @@ router.put('/:id',
     });
 
 router.delete('/:id',
+    authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'deleteItem' }),
     async (req, res) => {
         const id = req.params.id;

@@ -3,10 +3,14 @@ import GroupModel from '../Models/groupModel';
 import GroupService from '../services/groupService';
 import loggerMiddleware from './loggerMiddleware';
 import { logServiceError } from '../helpers/loggerHelper';
+import validate from './validators/validator';
+import { groupPostSchema, groupPutSchema } from './validators/groupSchema';
+import authentication from './authenticationMiddleware';
 
 const router = Router();
 
 router.get('/',
+    authentication,
     loggerMiddleware({ serviceName:'GroupService', method: 'getAllItems' }),
     async (req, res) => {
         const groupServiceInstance = new GroupService(GroupModel);
@@ -19,6 +23,7 @@ router.get('/',
     });
 
 router.get('/:id',
+    authentication,
     loggerMiddleware({ serviceName:'GroupService', method: 'getItemById' }),
     async (req, res) => {
         const params = { id: req.params.id };
@@ -37,6 +42,8 @@ router.get('/:id',
     });
 
 router.post('/',
+    authentication,
+    validate(groupPostSchema),
     loggerMiddleware({ serviceName:'GroupService', method: 'addItem' }),
     async (req, res) => {
         const { name, permissions } = req.body;
@@ -56,6 +63,8 @@ router.post('/',
     });
 
 router.put('/:id',
+    authentication,
+    validate(groupPutSchema),
     loggerMiddleware({ serviceName:'GroupService', method: 'updateItem' }),
     async (req, res) => {
         const id = req.params.id;
@@ -76,6 +85,7 @@ router.put('/:id',
     });
 
 router.delete('/:id',
+    authentication,
     loggerMiddleware({ serviceName:'GroupService', method: 'deleteItem' }),
     async (req, res) => {
         const id = req.params.id;

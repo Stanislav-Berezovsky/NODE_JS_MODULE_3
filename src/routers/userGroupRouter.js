@@ -7,10 +7,12 @@ import UserService from '../services/userService';
 import GroupService from '../services/groupService';
 import loggerMiddleware from './loggerMiddleware';
 import { logServiceError } from '../helpers/loggerHelper';
+import authentication from './authenticationMiddleware';
 
 const router = Router();
 
 router.get('/',
+    authentication,
     loggerMiddleware({ serviceName:'UserGroupService', method: 'getAllItems' }),
     async (req, res) => {
         const userGroupServiceInstance = new UserGroupService({ model: UserGroupModel });
@@ -24,6 +26,7 @@ router.get('/',
     });
 
 router.post('/',
+    authentication,
     loggerMiddleware({ serviceName:'UserGroupService', method: 'addUsersToGroup' }),
     async (req, res) => {
         const { groupId, userIds } = req.body;
