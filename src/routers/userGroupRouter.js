@@ -7,12 +7,14 @@ import UserService from '../services/userService';
 import GroupService from '../services/groupService';
 import loggerMiddleware from './loggerMiddleware';
 import { logServiceError } from '../helpers/loggerHelper';
+import authentication from './authenticationMiddleware';
 
 const router = Router();
 
 router.get('/',
+    authentication,
     loggerMiddleware({ serviceName:'UserGroupService', method: 'getAllItems' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const userGroupServiceInstance = new UserGroupService({ model: UserGroupModel });
         try {
             const userGroup = await userGroupServiceInstance.getAllItems();
@@ -20,10 +22,13 @@ router.get('/',
             res.json(userGroup);
         } catch (e) {
             logServiceError({ name: 'UserGroupService', method:'getAllItems', errorMessage: e.message });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
 router.post('/',
+    authentication,
     loggerMiddleware({ serviceName:'UserGroupService', method: 'addUsersToGroup' }),
     async (req, res) => {
         const { groupId, userIds } = req.body;
@@ -44,6 +49,8 @@ router.post('/',
             }
         } catch (e) {
             logServiceError({ name: 'UserGroupService', method:'getAllItems', errorMessage: e.message, params });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 

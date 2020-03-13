@@ -43,6 +43,12 @@ const loggerMiddleware = ({ serviceName, method }) => (req, res, next) => {
                 userIds: req.body.userIds
             };
             break;
+        case 'login':
+            params = {
+                login: req.body.login,
+                password: req.body.password
+            };
+            break;
         case 'getAllItems':
         default:
             params = {};
