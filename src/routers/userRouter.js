@@ -12,7 +12,7 @@ const router = Router();
 router.get('/autoSuggest',
     authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'getAutosuggested' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const { loginSubstring, limit } = req.query || {};
         const userServiceInstance = new UserService(UserModel);
         const params = { loginSubstring, limit };
@@ -21,13 +21,15 @@ router.get('/autoSuggest',
             res.json({ users });
         } catch (e) {
             logServiceError({ name: 'UserService', method:'getAutosuggested', errorMessage: e.message, params });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
 router.get('/',
     authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'getAllItems' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const userServiceInstance = new UserService(UserModel);
 
         try {
@@ -35,13 +37,15 @@ router.get('/',
             res.json(users);
         } catch (e) {
             logServiceError({ name: 'UserService', method:'getAllItems', errorMessage: e.message });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
 router.get('/:id',
     authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'getItemById' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const params = { id:req.params.id };
         const userServiceInstance = new UserService(UserModel);
         try {
@@ -54,6 +58,8 @@ router.get('/:id',
             }
         } catch (e) {
             logServiceError({ name: 'UserService', method:'getItemById', errorMessage: e.message, params });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
@@ -61,7 +67,7 @@ router.post('/',
     authentication,
     validate(userSchema),
     loggerMiddleware({ serviceName:'UserService', method: 'addItem' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const { login, password, age } = req.body;
         const params = { login, password, age };
         const userServiceInstance = new UserService(UserModel);
@@ -75,6 +81,8 @@ router.post('/',
             }
         } catch (e) {
             logServiceError({ name: 'UserService', method:'addItem', errorMessage: e.message, params });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
@@ -82,7 +90,7 @@ router.put('/:id',
     authentication,
     validate(userSchema),
     loggerMiddleware({ serviceName:'UserService', method: 'updateItem' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const id = req.params.id;
         const { login, password, age } = req.body;
         const params = { id, login, password, age };
@@ -97,21 +105,29 @@ router.put('/:id',
             }
         } catch (e) {
             logServiceError({ name: 'UserService', method:'updateItem', errorMessage: e.message, params });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
 router.delete('/:id',
     authentication,
     loggerMiddleware({ serviceName:'UserService', method: 'deleteItem' }),
-    async (req, res) => {
+    async (req, res, next) => {
         const id = req.params.id;
         const userServiceInstance = new UserService(UserModel);
 
         try {
-            await userServiceInstance.deleteItem(id);
-            res.json({ message: 'user was successfully deleted' });
+            const user = await userServiceInstance.deleteItem(id);
+            if (user) {
+                res.json({ message: 'user was successfully deleted' });
+            } else {
+                res.json({ message: 'This user does not exist' });
+            }
         } catch (e) {
             logServiceError({ name: 'UserService', method:'deleteItem', errorMessage: e.message, params: { id } });
+            // eslint-disable-next-line
+            next(e);
         }
     });
 
