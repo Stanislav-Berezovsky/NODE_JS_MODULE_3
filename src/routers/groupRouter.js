@@ -10,7 +10,7 @@ import authentication from './authenticationMiddleware';
 const router = Router();
 
 router.get('/',
-    // authentication,
+    authentication,
     loggerMiddleware({ serviceName:'GroupService', method: 'getAllItems' }),
     async (req, res, next) => {
         const groupServiceInstance = new GroupService(GroupModel);
@@ -25,7 +25,7 @@ router.get('/',
     });
 
 router.get('/:id',
-    // authentication,
+    authentication,
     loggerMiddleware({ serviceName:'GroupService', method: 'getItemById' }),
     async (req, res, next) => {
         const params = { id: req.params.id };
