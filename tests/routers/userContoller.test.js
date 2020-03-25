@@ -32,7 +32,6 @@ describe('userController', () => {
                     'updatedAt': '2020-03-23T21:18:50.367Z'
                 }
             ];
-
             const resSpy = {
                 json: jest.fn()
             };
@@ -44,6 +43,7 @@ describe('userController', () => {
             expect(getAllItemsStub).toHaveBeenCalled();
             expect(getAllItemsStub.mock.calls.length).toBe(1);
             expect(resSpy.json).toHaveBeenCalledWith(data);
+
             getAllItemsStub.mockRestore();
         });
 
@@ -63,6 +63,7 @@ describe('userController', () => {
             expect(getAllItemsStub.mock.calls.length).toBe(1);
             expect(logStub).toHaveBeenCalledWith('error', 'UserService.getAllItems was called with following arguments are undefined, error message: test error');
             expect(nextSpy).toHaveBeenCalledWith(expectedError);
+
             logStub.mockRestore();
             getAllItemsStub.mockRestore();
         });
@@ -71,10 +72,6 @@ describe('userController', () => {
     describe('getUserById', () => {
         it('should return user ', async () => {
             const id = 1;
-            const resSpy = {
-                json: jest.fn()
-            };
-
             const data = {
                 id,
                 'login': 'testlogin1autoSuggest',
@@ -83,6 +80,9 @@ describe('userController', () => {
                 'isDeleted': false,
                 'createdAt': '2020-03-23T21:18:50.367Z',
                 'updatedAt': '2020-03-23T21:18:50.367Z'
+            };
+            const resSpy = {
+                json: jest.fn()
             };
             const getItemByIdStub = jest.spyOn(UserService.prototype, 'getItemById')
                 .mockImplementation(() => Promise.resolve(data));
@@ -116,8 +116,8 @@ describe('userController', () => {
 
         test('should call next method to handle error', async () => {
             const id = 1231233;
-            const nextSpy = jest.fn();
             const expectedError = new Error('test error');
+            const nextSpy = jest.fn();
             const getItemByIdStub = jest.spyOn(UserService.prototype, 'getItemById')
                 .mockImplementation(() => {
                     throw expectedError;
@@ -129,6 +129,7 @@ describe('userController', () => {
             expect(getItemByIdStub).toHaveBeenCalledWith({ id });
             expect(logStub).toHaveBeenCalledWith('error', 'UserService.getItemById was called with following arguments are {\"id\":1231233}, error message: test error');
             expect(nextSpy).toHaveBeenCalledWith(expectedError);
+
             logStub.mockRestore();
             getItemByIdStub.mockRestore();
         });
@@ -152,6 +153,7 @@ describe('userController', () => {
 
             expect(addItemStub).toHaveBeenCalledWith(body);
             expect(resSpy.json).toHaveBeenCalledWith({ message: 'user was successfully added' });
+
             addItemStub.mockRestore();
         });
 
@@ -168,12 +170,13 @@ describe('userController', () => {
             expect(addItemStub).toHaveBeenCalledWith(body);
             expect(resSpy.status).toHaveBeenCalledWith(400);
             expect(resSpy.json).toHaveBeenCalledWith({ message: 'this login is already existed' });
+
             addItemStub.mockRestore();
         });
 
         it('should handle error', async () => {
-            const nextSpy = jest.fn();
             const expectedError = new Error('test error');
+            const nextSpy = jest.fn();
             const addItemStub = jest.spyOn(UserService.prototype, 'addItem')
                 .mockImplementation(() => {
                     throw expectedError;
@@ -185,6 +188,7 @@ describe('userController', () => {
             expect(addItemStub).toHaveBeenCalledWith(body);
             expect(logStub).toHaveBeenCalledWith('error', 'UserService.addItem was called with following arguments are {\"login\":\"test_login\",\"password\":\"test_password\",\"age\":23}, error message: test error');
             expect(nextSpy).toHaveBeenCalledWith(expectedError);
+
             logStub.mockRestore();
             addItemStub.mockRestore();
         });
@@ -209,6 +213,7 @@ describe('userController', () => {
 
             expect(updateItemStub).toHaveBeenCalledWith({ id, ...body });
             expect(res.json).toHaveBeenCalledWith({ message: 'user was successfully updated' });
+
             updateItemStub.mockRestore();
         });
 
@@ -225,12 +230,13 @@ describe('userController', () => {
             expect(updateItemStub).toHaveBeenCalledWith({ id, ...body });
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ message: 'not found' });
+
             updateItemStub.mockRestore();
         });
 
         it('should handle error', async () => {
-            const nextSpy = jest.fn();
             const expectedError = new Error('test error');
+            const nextSpy = jest.fn();
             const updateItemStub = jest.spyOn(UserService.prototype, 'updateItem')
                 .mockImplementation(() => {
                     throw expectedError;
@@ -242,6 +248,7 @@ describe('userController', () => {
             expect(updateItemStub).toHaveBeenCalledWith({ id, ...body });
             expect(logStub).toHaveBeenCalledWith('error', 'UserService.updateItem was called with following arguments are {\"id\":1,\"login\":\"test_login\",\"password\":\"test_password\",\"age\":23}, error message: test error');
             expect(nextSpy).toHaveBeenCalledWith(expectedError);
+
             logStub.mockRestore();
             updateItemStub.mockRestore();
         });
@@ -269,14 +276,15 @@ describe('userController', () => {
 
             expect(getAutosuggestedStub).toHaveBeenCalledWith({ loginSubstring, limit });
             expect(resSpy.json).toHaveBeenCalledWith({ users:data });
+
             getAutosuggestedStub.mockRestore();
         });
 
         it('should call next method to handle error', async () => {
             const loginSubstring = 'login_test';
             const limit = 2;
-            const nextSpy = jest.fn();
             const expectedError = new Error('test error');
+            const nextSpy = jest.fn();
             const getAutosuggestedStub = jest.spyOn(UserService.prototype, 'getAutosuggested')
                 .mockImplementation(() => {
                     throw expectedError;
@@ -288,6 +296,7 @@ describe('userController', () => {
             expect(getAutosuggestedStub).toHaveBeenCalledWith({ loginSubstring, limit });
             expect(logStub).toHaveBeenCalledWith('error', 'UserService.getAutosuggested was called with following arguments are {\"loginSubstring\":\"login_test\",\"limit\":2}, error message: test error');
             expect(nextSpy).toHaveBeenCalledWith(expectedError);
+
             logStub.mockRestore();
             getAutosuggestedStub.mockRestore();
         });
@@ -299,7 +308,6 @@ describe('userController', () => {
             const resSpy = {
                 json: jest.fn()
             };
-
             const deleteItemStub = jest.spyOn(UserService.prototype, 'deleteItem')
                 .mockImplementation(() => Promise.resolve({
                     'id': 1,
@@ -310,6 +318,7 @@ describe('userController', () => {
 
             expect(deleteItemStub).toHaveBeenCalledWith(id);
             expect(resSpy.json).toHaveBeenCalledWith({ message: 'user was successfully deleted' });
+
             deleteItemStub.mockRestore();
         });
 
@@ -325,13 +334,14 @@ describe('userController', () => {
 
             expect(deleteItemStub).toHaveBeenCalledWith(id);
             expect(resSpy.json).toHaveBeenCalledWith({ message: 'This user does not exist' });
+
             deleteItemStub.mockRestore();
         });
 
         it('error should be catched', async () => {
             const id = 1231233;
-            const nextSpy = jest.fn();
             const expectedError = new Error('test error');
+            const nextSpy = jest.fn();
             const deleteItemStub = jest.spyOn(UserService.prototype, 'deleteItem')
                 .mockImplementation(() => {
                     throw expectedError;
@@ -343,6 +353,7 @@ describe('userController', () => {
             expect(deleteItemStub).toHaveBeenCalledWith(id);
             expect(logStub).toHaveBeenCalledWith('error', 'UserService.deleteItem was called with following arguments are {\"id\":1231233}, error message: test error');
             expect(nextSpy).toHaveBeenCalledWith(expectedError);
+
             logStub.mockRestore();
             deleteItemStub.mockRestore();
         });
